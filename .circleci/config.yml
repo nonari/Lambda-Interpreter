@@ -21,3 +21,16 @@ jobs:
           key: dependency-cache-opam-base
           paths:
             - .opam_modules
+      - run:
+          name: build
+          command: 'make opt'
+      - run:
+          name: test
+          command: 'echo "(\x. x x)" | ./fly'
+      - store_artifacts:
+          path: test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+      
