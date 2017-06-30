@@ -1,5 +1,5 @@
 version: 2.0
-jobs:
-  build:
-    docker:
-      - image: ocaml/opam:ubuntu-14.04_ocaml-4.02.3
+
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install opam; `opam init`
