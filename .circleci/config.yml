@@ -13,10 +13,10 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: apt-get
-          command: sudo apt-get install --yes zlib1g-dev libgmp-dev libgmp-ocaml-dev sqlite3.4.1.2
+          command: sudo apt-get install --yes zlib1g-dev libgmp-dev libgmp-ocaml-dev sqlite3
       - run:
           name: install_libs
-          command: opam install cryptokit sqlite3 menhir cppo
+          command: opam install cryptokit sqlite3.4.1.2 menhir cppo
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
