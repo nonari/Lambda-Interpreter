@@ -1,5 +1,9 @@
-version: 2.0
-
-dependencies:
-  pre:
-    - sudo apt-get update; sudo apt-get install opam; `opam init`
+version: 2
+jobs:
+  build:
+    working_directory: ~/ocaml
+    docker:
+      - image: ocaml/opam:ubuntu
+    steps:
+      - checkout
+      - run: opam init; eval `opam config env`; opam install cryptokit sqlite3 menhir cppo
