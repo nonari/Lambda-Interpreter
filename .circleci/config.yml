@@ -20,13 +20,13 @@ jobs:
       - save_cache:
           key: dependency-cache-opam-base
           paths:
-            - .opam_modules
+            - ~/.opam
       - run:
           name: build
           command: 'make opt'
       - run:
           name: test
-          command: 'echo "(\x. x x)" | ./fly'
+          command: 'echo "((\a. \a. \b. c) \a. a \c. a) 2" | ./fly'
       - store_artifacts:
           path: test-results.xml
           prefix: tests
