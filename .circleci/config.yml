@@ -6,6 +6,7 @@ jobs:
       - image: ocaml/opam:ubuntu
         environment:
           OPAMYES: yes
+          TERM: xterm
     steps:
       - checkout
       - restore_cache:
