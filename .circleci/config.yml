@@ -10,7 +10,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-opam-base
       - run:
           name: apt-get
           command: sudo apt-get install --yes zlib1g-dev libgmp-dev libgmp-ocaml-dev sqlite3 pkg-config libsqlite3-dev m4
@@ -18,6 +18,6 @@ jobs:
           name: install_libs
           command: opam install sqlite3.4.1.2 menhir cppo cryptokit
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-opam-base
           paths:
             - .opam_modules
