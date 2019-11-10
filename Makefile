@@ -1,41 +1,32 @@
-OCAMLC=ocamlc
-OCAMLOPT=ocamlopt
-OCAMLDEP=ocamldep
+ast: ast.ml
+	ocamlc -c $<
 
-OBJ= ast.cmo parser.cmo lexer.cmo lambda.cmo main.cmo
-
-all: $(OBJ)
-	$(OCAMLC) -o run $(OBJ)
-
-
-opt: $(OBJ:.cmo=.cmx)
-	$(OCAMLOPT) -o fly $(OBJ:.cmo=.cmx)
-
-optclean: $(OBJ:.cmo=.cmx)
-	# rm -f *.o *.cm*
-	$(OCAMLOPT) -o fly $(OBJ:.cmo=.cmx)
-
-depend: parser.ml parser.mli lexer.ml
-	ocamldep \
-	$(patsubst %.cmo,%.ml,$(filter %.cmo,$(OBJ))) \
-	$(patsubst %.cmi,%.mli,$(filter %.cmi,$(OBJ))) \
-	 > .depend
-
-.SUFFIXES: .ml .mli .cmo .cmx .cmi .mly .mll
-.ml.cmx:
-	$(OCAMLOPT) -c $<
-.ml.cmo:
-	$(OCAMLC) -c $<
-.mli.cmi:
-	$(OCAMLC) -c $<
-.mll.ml:
+lexer.ml: lexer.mll
 	ocamllex $<
-.mly.ml:
+
+parser.ml: parser.mly
 	ocamlyacc $<
 
+parser.i: parser.mli
+	ocamlc -c $<
+
+parser: parser.ml parser.i
+	ocamlc -c $<
+
+lexer: lexer.ml
+	ocamlc -c $<
+
+lambda: lambda.ml
+	ocamlc -c $<
+
+main: main.ml
+	ocamlc -c $<
+
+all: clean ast parser lexer lambda main
+	ocamlc -o lambda parser.cmo lexer.cmo lambda.cmo main.cmo
+
+execute:
+	./lambda
+
 clean:
-	rm -f *.o *.cm* parser.ml parser.mli lexer.ml fly run
-
-
-
-include .depend 
+	rm -f *.cmo *.cmi lexer.ml parser.ml parser.mli lambda a.out

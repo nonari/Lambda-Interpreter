@@ -11,15 +11,12 @@ let rec ppf fmt t =
     fpf fmt "%a %a" ppf e1 ppf e2
   | Abs (v, e) ->
     fpf fmt "λ%s. %a" v ppf e
-  | Paren e ->
-    fpf fmt "( %a )" ppf e
 
 let ppdf fmt t =
   match t with
   | Var _ -> fpf fmt   "Var | %a@." ppf  t
   | App _ -> fpf fmt   "App | %a@." ppf  t
   | Abs _ -> fpf fmt   "Abs | %a@." ppf  t
-  | Paren _ -> fpf fmt "Par | %a@." ppf  t
 
 let pp (t:expr) =
   if debug then ppdf std_formatter t
@@ -31,16 +28,14 @@ let rec eval e0:expr =
   | App(Var _, _) ->
     e0
   | App(Abs(t,e1), e2) ->
-(*** Eager evaluation
+  (***Eager evaluation***)
     let v = eval e2 in
     eval (sub t e1 v)
-***)
-    fpf std_formatter "> %a" ppdf e0;
-    eval (sub t e1 e2)
+
+(***    fpf std_formatter "> %a" ppdf e0;
+    eval (sub t e1 e2)***)
   | App(App(e1,e2),e3) ->
     eval (App(eval (App(e1,e2)), e3))
-  | App(e1,e2) ->
-    eval e0
   (* Abstraction *)
   | Abs(t, App(e1,e2))->
     let v2 = eval e2 in
@@ -52,11 +47,8 @@ let rec eval e0:expr =
   (* Variable *)
   | Var s ->
     e0
-  (* Parenthesis *)
-  | Paren e1 ->
-    e1
 
-and sub (t:var) (e1:expr) (e2:expr) =
+and sub (t:string) (e1:expr) (e2:expr) =
   match e1 with
   | Abs(s, e) ->
     let s1 = sub t e e2 in
@@ -69,5 +61,3 @@ and sub (t:var) (e1:expr) (e2:expr) =
     if t = s then begin 
     fpf std_formatter "- [ %s <- %a ]@." t ppf e2;e2 
     end else e1
-  | Paren e ->
-    e
