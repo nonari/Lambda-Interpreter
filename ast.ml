@@ -1,7 +1,7 @@
-type expr = 
+type term = 
     Var of string          (* variable *)
-  | App of expr * expr     (* application *)
-  | Abs of string * expr   (* abstraction *)
+  | App of term * term     (* application *)
+  | Abs of string * term   (* abstraction *)
   | Let of string * term * term
   | If of term * term * term
   | True
