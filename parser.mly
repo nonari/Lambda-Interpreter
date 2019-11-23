@@ -1,34 +1,64 @@
 %{open Ast %}
 %token <string> VAR
-%token LAMBDA DOT L_PAREN R_PAREN EOF
-%start main
-%type <Ast.expr>  main
+%token <int> NUM
+%token LAMBDA 
+%token DOT 
+%token L_PAREN 
+%token R_PAREN 
+%token EOF
+%token IF
+%token THEN
+%token ELSE
+%token TRUE
+%token FALSE
+%token SUCC
+%token PRED
+%token ISZERO
+%token LET
+%token IN
+%token EQ
 
-%left VAR
+%start main
+%type <Ast.term>  main
+
+%left VAR 
+%left NUM
 %left LAMBDA DOT
 %left L_PAREN R_PAREN EOF
+%right LET 
+%right IF 
+%right SUCC 
+%right PRED 
+%right ISZERO
+%nonassoc EQ 
+%nonassoc IN 
+%nonassoc THEN 
+%nonassoc ELSE
 
 
 %%
 main:
-  expr EOF { $1 }
+  term EOF { $1 }
 
 
-expr:
-  | expr2   { $1 }
-  | t var   { App($1,$2) }
-  | t expr2 { App($1,$2) }
+term:
+  | appTerm                     { $1 }
+  | atomTerm                    { $1 }
+  | term term                  { App($1,$2) }
+  | IF term THEN term ELSE term { If($2,$4,$6) }
+  | LET VAR EQ term IN term     { Let($2,$4,$6) }
 
 
-expr2:
-  | LAMBDA VAR DOT t     { Abs($2,$4) }
-  | L_PAREN expr R_PAREN { $2 }
-  
-
-t:
-  | var  { $1 }
-  | expr { $1 }
+appTerm:
+  | SUCC term   { Succ($2) }
+  | PRED term   { Pred($2) }
+  | ISZERO term { IsZero($2) }
 
 
-var:
-  | VAR { Var($1) }
+atomTerm:
+  | LAMBDA VAR DOT term  { Abs($2,$4) }
+  | L_PAREN term R_PAREN { $2 }
+  | TRUE                 { True }
+  | FALSE                { False }
+  | VAR                  { Var($1) }
+  | NUM                  { Num($1) }
