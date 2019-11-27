@@ -44,7 +44,7 @@ main:
 term:
   | appTerm                     { $1 }
   | atomTerm                    { $1 }
-  | term term                  { App($1,$2) }
+  | term term                   { App($1,$2) }
   | IF term THEN term ELSE term { If($2,$4,$6) }
   | LET VAR EQ term IN term     { Let($2,$4,$6) }
 
