@@ -6,10 +6,9 @@ open String
 
 exception No_rules_apply
 
-let debug = true
-
 module S_set = Set.Make(String);;
 
+(* λ *)
 let rec str_of_term t =
   match t with
   | True  -> "True"
@@ -17,16 +16,16 @@ let rec str_of_term t =
   | Var a -> a
   | Num n -> string_of_int n
   | App(t1, t2) -> "(" ^ str_of_term t1 ^ " " ^ str_of_term t2 ^ ")"
-  | Abs(p, t) -> "(λ" ^ p ^ "." ^ str_of_term t ^ ")"
+  | Abs(p, t) -> "(L " ^ p ^ "." ^ str_of_term t ^ ")"
   | Pred t -> "pred " ^ str_of_term t
   | Succ t -> "succ " ^ str_of_term t
-  | Let(p, t1, t2) -> "let " ^ p ^ str_of_term t1 ^ str_of_term t2
-  | If(c, t, e) -> "if" ^ str_of_term c ^ "then" ^ str_of_term t ^ "else" ^ str_of_term e
-  | IsZero t -> "iszero" ^ str_of_term t
+  | Let(p, t1, t2) -> "let " ^ p ^ " = " ^ str_of_term t1 ^ " in " ^ str_of_term t2
+  | If(c, t, e) -> "if " ^ str_of_term c ^ " then " ^ str_of_term t ^ " else " ^ str_of_term e
+  | IsZero t -> "iszero " ^ str_of_term t
 
 (* Recursively evaluates a term until it can't be reduced *)
 let rec eval t =
-  let t' = eval0 t in 
+  let t' = eval0 t in
     if t' = t
     then t
     else eval t'
@@ -35,18 +34,14 @@ let rec eval t =
 and eval0 t0 =
   match t0 with
   | App(Abs(p, t1), t2) when isval t2 ->
-      Printf.printf "Subst %s by %s in %s\n" p (str_of_term t2) (str_of_term t1);
-      subst p t1 t2
+      Printf.printf "[%s -> %s]%s\n" p (str_of_term t2) (str_of_term t1);
+      eval (subst p t1 t2)
   
-  | App(v, t) when isval v ->
-      App(v, eval t)
+  | App(v, t) when isval v -> App(v, eval t)
   
-  | App(t1, t2) ->
-      App(eval t1, t2)   
+  | App(t1, t2) -> App(eval t1, t2)
 
-  | Abs(t, e) -> Abs(t, eval e)
-
-  | Let(p, v, t) -> eval (App(Abs(p, t), v))
+  | Let(p, v, t) -> App((Abs(p, t)), v)
 
   | Succ t ->
     (let r = eval t in match r with
@@ -56,6 +51,7 @@ and eval0 t0 =
 
   | Pred t ->
     (let r = eval t in match r with
+      | Num 0 -> Num 0
       | Num n -> Num(n - 1)
       | t -> t0
     )
@@ -79,15 +75,11 @@ and eval0 t0 =
 (* Check if the term is already a value *)
 and isval t0 =
   match t0 with
-    |Abs _ -> true
+    |Abs _ -> true 
     |Var _ -> true
     |Num _ -> true
     |True -> true
     |False -> true
-    |Pred t -> isval t
-    |Succ t -> isval t
-    |IsZero t -> isval t
-    |If(_, t, e) -> (isval t) && (isval e) 
     |_ -> false
 
 (* Recursively substitute p0 by s0 in t0 *)
@@ -100,9 +92,9 @@ and subst (p0:string) (t0:term) (s0:term) =
       if not (S_set.mem p0 fv)
       then Abs(p2, subst p0 t2 s0)
       else
-        let new_p = new_name fv p2 in
+        let new_p = new_name (S_set.union (free t2) fv) p2 in
         let sub_t = subst p2 t2 (Var new_p) in
-          Abs(new_p, (subst p2 sub_t s0))
+          Abs(new_p, (subst p0 sub_t s0))
 
   | App(t2, t3) ->
     let r1 = subst p0 t2 s0 in
@@ -119,7 +111,7 @@ and subst (p0:string) (t0:term) (s0:term) =
 
   | If(c, t, e) -> If ((subst p0 c s0), (subst p0 t s0), (subst p0 e s0))
 
-  | Let(p, t1, t2) -> subst p0 (eval t0) s0
+  | Let(p, t1, t2) -> subst p0 (eval0 t0) s0
 
   | _ -> t0
 
@@ -133,7 +125,7 @@ and free t =
   | Succ t -> free t
   | IsZero t -> free t
   | If(c, t, e) -> S_set.union (free c) (S_set.union (free t) (free e))
-  | Let(p, t1, t2) -> free (eval t)
+  | Let(p, t1, t2) -> free (eval0 t)
   | Num _ -> S_set.empty
   | True -> S_set.empty
   | False -> S_set.empty
@@ -154,3 +146,6 @@ and next_name var =
       let last_code = Char.code (String.get var (len - 1)) in
       let next_string = Char.escaped(Char.chr (1 + last_code)) in
         (String.sub var 0 (len - 1)) ^ next_string
+
+and next_name2 var =
+  var ^ "'"
