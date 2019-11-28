@@ -18,10 +18,9 @@ let _ =
         let lexbuf = Lexing.from_channel stdin in
 ***)
           let ast = Parser.main Lexer.token lexbuf in
-            let ppf = Lambda.ppf in
             let eval = Lambda.eval ast in
-
-            fprintf std_formatter "= %a@." ppf eval;
+            Printf.printf "= %s\n" (Lambda.str_of_term eval);
+            
       end
     with
       | Lexer.Unexpected_token -> prerr_endline "[Error] Unexpected_token";

@@ -10,7 +10,7 @@ let print = fprintf
 let debug = true
 
 module S_set = Set.Make(String);;
-
+(*
 let rec ppf format t =
   match t with
   | True -> printf "True"
@@ -33,21 +33,17 @@ let ppdf format t =
   | App _ -> print format "App | %a@." ppf t
   | Abs _ -> print format "Abs | %a@." ppf t
   | Pred _ ->print format "Pred | %a@." ppf t
-
-let rec rawp t =
-let rec rawp0 t = match t with
+*)
+let rec ppdf t =
+  let rec ppdf0 t = match t with
   | True  -> "True"
   | False -> "False"
   | Var a -> " " ^ a 
   | Num n -> " " ^ string_of_int n
-  | App(t1, t2) -> "(" ^ rawp0 t1 ^ rawp0 t2 ^ ")"
-  | Abs(p, t) -> "(λ" ^ p ^ "." ^ rawp0 t ^ ")"
-  | Pred t -> "pred " ^ rawp0 t 
+  | App(t1, t2) -> "(" ^ ppdf0 t1 ^ ppdf0 t2 ^ ")"
+  | Abs(p, t) -> "(λ" ^ p ^ "." ^ ppdf0 t ^ ")"
+  | Pred t -> "pred " ^ ppdf0 t 
 in printf t
-
-let pp (t:term) =
-  if debug then ppdf std_formatter t
-  else print std_formatter "%a@." ppf t
 
 let rec eval t =
   let t' = eval0 t in if t' = t then t else eval t'
@@ -65,6 +61,8 @@ and eval0 t0:term =
 
   | Abs(t, e) -> Abs(t, eval e)
   
+  | Let(p, v, t) -> eval App((Abs p t), v)
+
   | Var s -> t0
   
   | Num n -> t0
@@ -122,12 +120,13 @@ and subst (p1:string) (t1:term) (s1:term) =
       if not (S_set.mem p1 fv) 
       then Abs(p1, subst p1 t2 s1)
       else let new_p = new_name fv p2 in
-        Abs(new_p, (subst p1 (subst p2 t2 Var(new_p)) s1)
+        let sub_t = subst p2 t2 (Var new_p) in
+          Abs(new_p, (subst p1 sub_t s1))
   | App(t2, t3) ->
     let r1 = subst p1 t2 s1 in
     let r2 = subst p1 t3 s1 in
       App(r1,r2)
-  
+
   | Var s -> if p1 = s then s1 else t1
 
   | Num n -> Num n

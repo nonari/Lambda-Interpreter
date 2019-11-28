@@ -1,10 +1,10 @@
 %{open Ast %}
 %token <string> VAR
 %token <int> NUM
-%token LAMBDA 
-%token DOT 
-%token L_PAREN 
-%token R_PAREN 
+%token LAMBDA
+%token DOT
+%token L_PAREN
+%token R_PAREN
 %token EOF
 %token IF
 %token THEN
@@ -19,20 +19,20 @@
 %token EQ
 
 %start main
-%type <Ast.term>  main
+%type <Ast.term> main
 
-%left VAR 
+%left VAR
 %left NUM
 %left LAMBDA DOT
 %left L_PAREN R_PAREN EOF
-%right LET 
-%right IF 
-%right SUCC 
-%right PRED 
+%right LET
+%right IF
+%right SUCC
+%right PRED
 %right ISZERO
-%nonassoc EQ 
-%nonassoc IN 
-%nonassoc THEN 
+%nonassoc EQ
+%nonassoc IN
+%nonassoc THEN
 %nonassoc ELSE
 
 

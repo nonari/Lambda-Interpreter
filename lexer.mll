@@ -32,7 +32,7 @@ let alphanumeric = ['A'-'Z''a'-'z''0'-'9''_']
 
 rule token =  parse
   | eof                 { EOF }
-  | space               { token lexbuf } (* skip *)
+  | space               { token lexbuf }
   | "L"|"lambda"        { LAMBDA }
   | "("                 { L_PAREN }
   | ")"                 { R_PAREN }
