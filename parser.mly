@@ -25,15 +25,6 @@
 %left NUM
 %left LAMBDA DOT
 %left L_PAREN R_PAREN EOF
-%right LET
-%right IF
-%right SUCC
-%right PRED
-%right ISZERO
-%nonassoc EQ
-%nonassoc IN
-%nonassoc THEN
-%nonassoc ELSE
 
 
 %%
@@ -43,20 +34,18 @@ main:
 
 term:
   | appTerm                     { $1 }
-  | atomTerm                    { $1 }
-  | term term                   { App($1,$2) }
   | IF term THEN term ELSE term { If($2,$4,$6) }
   | LET VAR EQ term IN term     { Let($2,$4,$6) }
-
+  | LAMBDA VAR DOT term         { Abs($2,$4) }
 
 appTerm:
-  | SUCC term   { Succ($2) }
-  | PRED term   { Pred($2) }
-  | ISZERO term { IsZero($2) }
-
+  | atomTerm         { $1 }
+  | SUCC atomTerm    { Succ($2) }
+  | PRED atomTerm    { Pred($2) }
+  | ISZERO atomTerm  { IsZero($2) }
+  | appTerm atomTerm { App($1,$2) }
 
 atomTerm:
-  | LAMBDA VAR DOT term  { Abs($2,$4) }
   | L_PAREN term R_PAREN { $2 }
   | TRUE                 { True }
   | FALSE                { False }
