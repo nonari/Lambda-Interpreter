@@ -5,6 +5,7 @@
 
   let keywords =
     [ "let",    LET;
+      "letrec", LETREC;
       "in",     IN; 
       "if",     IF;
       "then",   THEN;
@@ -37,7 +38,10 @@ rule token =  parse
   | "("                 { L_PAREN }
   | ")"                 { R_PAREN }
   | "."                 { DOT }
-  | "="		              { EQ }
+  | "="                 { EQ }
+  | "{"                 { LCURLY }
+  | "}"                 { RCURLY }
+  | ";"                 { COMMA }
   | digit as d          { NUM(int_of_string(d)) }
   | alphanumeric* as s  { find s }
   | _                   { raise Unexpected_token }

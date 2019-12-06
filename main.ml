@@ -14,5 +14,7 @@ let _ =
     with
       | Lexer.Unexpected_token -> prerr_endline "[Error] Unexpected_token";
       | Parsing.Parse_error -> prerr_endline "[Error] Parsing Error";
+      | Lambda.No_rules_apply -> prerr_endline "[Error] No rules apply";
+      | Lambda.Duplicated_labels -> prerr_endline "[Error] Duplicated labels in record";
       | End_of_file -> print_endline "bye !"; exit(0)
   done
