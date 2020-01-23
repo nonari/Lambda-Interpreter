@@ -22,6 +22,6 @@ Ocaml implementation of lambda calculus interpreter with extensions for:
  - *Sum two numbers with letrec*\
     `$ letrec sum = lambda n. lambda m. if iszero n then m else succ (sum (pred n) m) in sum 44 55`
  - *Project a record by label or position*\
-    `$ {a=1, b=2}.b`
+    `$ {a=1, b=2}.b`\
     `$ {a=1, b=2}.0`
 
